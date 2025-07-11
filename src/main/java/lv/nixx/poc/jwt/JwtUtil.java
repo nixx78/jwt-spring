@@ -1,7 +1,12 @@
 package lv.nixx.poc.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -13,15 +18,20 @@ import java.util.List;
 public class JwtUtil {
 
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expiration = 3600000;
 
-    public String generateToken(String username) {
+    public String generateToken(User userDetails) {
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userDetails.getUsername())
+                .claim("roles", roles)
+                .setHeaderParam("CustomHeader", "CustomHeader.Value")
                 .setIssuedAt(new Date())
-                .claim("roles", List.of("ROLE_ONE", "ROLE_TWO"))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
