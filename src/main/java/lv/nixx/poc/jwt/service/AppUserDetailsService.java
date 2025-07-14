@@ -1,4 +1,4 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.service;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
+public class AppUserDetailsService implements UserDetailsService {
 
     private final Map<String, User> users = Stream.of(new User("user_admin", "1", List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))),
             new User("user_ro", "1", List.of(new SimpleGrantedAuthority("ROLE_RO"))),

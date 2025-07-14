@@ -1,6 +1,7 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lv.nixx.poc.jwt.service.JwtAuthService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;

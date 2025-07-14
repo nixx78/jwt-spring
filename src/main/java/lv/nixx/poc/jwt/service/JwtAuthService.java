@@ -1,4 +1,4 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 public class JwtAuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
+    private final AppUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
-    public JwtAuthService(AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public JwtAuthService(AuthenticationManager authenticationManager, AppUserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;

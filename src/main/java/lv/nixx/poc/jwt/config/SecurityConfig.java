@@ -1,4 +1,4 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

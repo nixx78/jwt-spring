@@ -1,4 +1,4 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -25,30 +24,22 @@ public class JwtUtil {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
+        String username = userDetails.getUsername();
+
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(username)
                 .claim("roles", roles)
-                .setHeaderParam("CustomHeader", "CustomHeader.Value")
+                .claim("email", username + "@email.me")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public Claims getBody(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build()
                 .parseClaimsJws(token)
-                .getBody().getSubject();
-    }
-
-    public Collection<String> extractRoles(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
                 .getBody();
-
-        return claims.get("roles", Collection.class);
     }
 
     public boolean isTokenValid(String token) {

@@ -1,9 +1,11 @@
-package lv.nixx.poc.jwt;
+package lv.nixx.poc.jwt.config;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lv.nixx.poc.jwt.service.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,9 +40,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             if (jwtUtil.isTokenValid(token)) {
-                String username = jwtUtil.extractUsername(token);
 
-                Collection<String> roles = jwtUtil.extractRoles(token);
+                Claims jwtBody = jwtUtil.getBody(token);
+
+                String username = jwtBody.getSubject();
+                Collection<String> roles = jwtBody.get("roles", Collection.class);
+
+                Object email = jwtBody.get("email");
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null, roles.stream()
                         .map(SimpleGrantedAuthority::new)
@@ -49,7 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                log.info("User [{}] authenticated, roles {}", username, roles);
+                log.info("User [{}] authenticated, roles {} email [{}]", username, roles, email);
             }
         }
 
