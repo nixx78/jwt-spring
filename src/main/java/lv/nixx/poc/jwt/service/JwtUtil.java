@@ -16,6 +16,8 @@ import java.util.List;
 @Component
 public class JwtUtil {
 
+    public static final int refreshTokenExpirationMs = 1000 * 60 * 60;
+
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(User userDetails) {
@@ -31,7 +33,16 @@ public class JwtUtil {
                 .claim("roles", roles)
                 .claim("email", username + "@email.me")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }

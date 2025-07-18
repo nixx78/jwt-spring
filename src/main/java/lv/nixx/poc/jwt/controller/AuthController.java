@@ -3,6 +3,7 @@ package lv.nixx.poc.jwt.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lv.nixx.poc.jwt.service.JwtAuthService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +26,10 @@ public class AuthController {
 
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response) {
-        String jwt = jwtAuthService.authenticateAndGenerateToken(username, password);
 
-        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+        Map<String, String> tokens = jwtAuthService.authenticateAndGenerateTokenPairs(username, password);
+
+        ResponseCookie cookie = ResponseCookie.from("accessToken", tokens.get("accessToken"))
                 .httpOnly(true)
 //                .secure(true)                // HTTPS only
                 .path("/")
@@ -37,8 +39,17 @@ public class AuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(Map.of("jwt", jwt));
+        return ResponseEntity.ok(tokens);
     }
 
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
+        try {
+            return ResponseEntity.ok(jwtAuthService.refreshToken(refreshToken));
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ex.getMessage());
+        }
+    }
 }
 
